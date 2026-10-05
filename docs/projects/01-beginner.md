@@ -4,7 +4,7 @@ Name: Solar flares
 Level: beginner
 Source: the official n8n guide "Build your first workflow"
 Source URL: https://docs.n8n.io/build-your-first-workflow
-Status: the rule runs. The n8n cloud instance does not host this workflow yet.
+Status: the rule runs on n8n. The workflow id is 4hBDxRr0V6CUM28B. It is active.
 
 ## What this project does
 

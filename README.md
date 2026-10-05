@@ -11,8 +11,7 @@ The writing in `docs/` follows ASD-STE100. The rule list is `docs/STE.md`.
 
 Read `docs/projects/README.md` before you import a file.
 Read `docs/n8n-instance.md` for the cloud check.
-On 2026-10-05 the cloud workspace was still on the launch page.
-No workflow is hosted there yet.
+The instance is `jaredwerba`. Solar flares is active there and a live webhook call returned four flares.
 
 ## Beginner
 
