@@ -1,6 +1,6 @@
 # n8n FDE
 
-Three small n8n projects for a Forward Deployed Engineer conversation.
+Three small n8n projects for a Forward Deployed Engineer conversation, plus four public demos.
 The writing in `docs/` follows ASD-STE100. The rule list is `docs/STE.md`.
 
 | Level | Project | Check |
@@ -8,10 +8,14 @@ The writing in `docs/` follows ASD-STE100. The rule list is `docs/STE.md`.
 | Beginner | Solar flares | `node scripts/flares.mjs fixtures/flares-7d.json` |
 | Intermediate | Signal to outreach | `node scripts/score.mjs fixtures/signal-*.json` |
 | Advanced | Intake triage | `node scripts/triage.mjs fixtures/incomplete.json fixtures/push-back.json fixtures/simplify.json fixtures/build.json` |
+| Public demo | Boston weather | `node scripts/public-demos.mjs fixtures/weather-boston.json` |
+| Public demo | HN front page | `node scripts/public-demos.mjs fixtures/hn-front.json` |
+| Public demo | Dollar to euro | `node scripts/public-demos.mjs fixtures/usd-eur.json` |
+| Public demo | n8n blog titles | `node scripts/public-demos.mjs fixtures/n8n-blog.xml` |
 
 Read `docs/projects/README.md` before you import a file.
 Read `docs/n8n-instance.md` for the cloud check.
-The instance is `jaredwerba`. Solar flares is active there and a live webhook call returned four flares.
+The instance is `jaredwerba`. Solar flares and the four public demos are active there.
 
 ## Beginner
 

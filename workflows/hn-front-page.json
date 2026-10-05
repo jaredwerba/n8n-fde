@@ -1,0 +1,107 @@
+{
+  "name": "HN front page",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hn-front-page",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d44d0002-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "d44d0002-0000-4000-8000-000000000009"
+    },
+    {
+      "parameters": {
+        "url": "https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=5",
+        "options": {}
+      },
+      "id": "d44d0002-0000-4000-8000-000000000002",
+      "name": "HN search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function frontPage(raw) {\n  const body = raw && typeof raw === \"object\" ? raw : {};\n  const hits = Array.isArray(body.hits) ? body.hits : [];\n  const titles = hits.map((hit) => String(hit.title || \"\").trim()).filter(Boolean).slice(0, 5);\n  return { source: \"Hacker News\", total: titles.length, titles };\n}\nconst item = $input.first().json;\nconst body = item.body && typeof item.body === \"object\" ? item.body : item;\nreturn [{ json: frontPage(body) }];\n"
+      },
+      "id": "d44d0002-0000-4000-8000-000000000003",
+      "name": "Shape",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "d44d0002-0000-4000-8000-000000000004",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HN search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HN search": {
+      "main": [
+        [
+          {
+            "node": "Shape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

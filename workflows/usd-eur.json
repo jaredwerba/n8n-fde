@@ -1,0 +1,107 @@
+{
+  "name": "Dollar to euro",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "usd-eur",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d44d0003-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "d44d0003-0000-4000-8000-000000000009"
+    },
+    {
+      "parameters": {
+        "url": "https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR",
+        "options": {}
+      },
+      "id": "d44d0003-0000-4000-8000-000000000002",
+      "name": "Frankfurter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function usdEur(raw) {\n  const body = raw && typeof raw === \"object\" ? raw : {};\n  const rates = body.rates && typeof body.rates === \"object\" ? body.rates : {};\n  const rate = Number(rates.EUR);\n  return {\n    base: \"USD\",\n    quote: \"EUR\",\n    date: String(body.date || \"\"),\n    rate: Number.isFinite(rate) ? rate : null,\n  };\n}\nconst item = $input.first().json;\nconst body = item.body && typeof item.body === \"object\" ? item.body : item;\nreturn [{ json: usdEur(body) }];\n"
+      },
+      "id": "d44d0003-0000-4000-8000-000000000003",
+      "name": "Shape",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "d44d0003-0000-4000-8000-000000000004",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Frankfurter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Frankfurter": {
+      "main": [
+        [
+          {
+            "node": "Shape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
