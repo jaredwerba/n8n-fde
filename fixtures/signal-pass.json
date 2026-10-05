@@ -1,0 +1,9 @@
+{
+  "expect": "pass",
+  "expect_action": "do-not-send",
+  "request": {
+    "company": "Harbor Bakery",
+    "contact": "Sam Ortiz",
+    "signal": "Hiring a weekend cashier. No cloud or AI footprint."
+  }
+}

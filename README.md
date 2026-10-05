@@ -1,42 +1,65 @@
 # n8n FDE
 
-Small n8n project for a Forward Deployed Engineer conversation.
+Three small n8n projects for a Forward Deployed Engineer conversation.
+The writing in `docs/` follows ASD-STE100. The rule list is `docs/STE.md`.
 
-The built entry-level project is n8n's own first workflow: fetch the last seven days of solar flares, then split on whether `classType` contains `X`. Docs: https://docs.n8n.io/build-your-first-workflow
+| Level | Project | Check |
+| --- | --- | --- |
+| Beginner | Solar flares | `node scripts/flares.mjs fixtures/flares-7d.json` |
+| Intermediate | Signal to outreach | `node scripts/score.mjs fixtures/signal-*.json` |
+| Advanced | Intake triage | `node scripts/triage.mjs fixtures/incomplete.json fixtures/push-back.json fixtures/simplify.json fixtures/build.json` |
 
-`api.nasa.gov/DONKI` redirects as of 2026-09-30. The runnable workflow calls `https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR` instead. Checked live on 2026-10-05: four flares, none of them X-class. An empty true branch is a result.
+Read `docs/projects/README.md` before you import a file.
+Read `docs/n8n-instance.md` for the cloud check.
+On 2026-10-05 the cloud workspace was still on the launch page.
+No workflow is hosted there yet.
 
-## What is here
+## Beginner
 
-- `workflows/solar-flares.json` is the importable workflow. Webhook path `solar-flares`. Do not edit it by hand. Regenerate with `node scripts/emit-flares.mjs`.
-- `workflows/tutorial-first-workflow.json` is the official docs canvas (Schedule, NASA node, If, PostBin) with the sample credential removed. The NASA node still points at the retired URL.
-- `scripts/flares.mjs` is the split. `fixtures/flares-7d.json` is the live pull from that day.
-- `workflows/intake-triage.json` is a separate staged decision workflow, not this project.
+The official first workflow gets the last seven days of solar flares.
+It splits on whether `classType` contains `X`.
+Docs: https://docs.n8n.io/build-your-first-workflow
 
-The screen-share page is on the Vercel project, at `/flares`. It runs this same split until `N8N_FLARES_WEBHOOK_URL` is set.
+`api.nasa.gov/DONKI` redirects as of 2026-09-30.
+The runnable file calls `https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR`.
+A live check on 2026-10-05 returned four flares and no X-class flare.
+An empty true branch is a result.
 
-## Run the split without n8n
+The screen-share page is https://n8n-demo-three.vercel.app/flares.
+It runs the same split until `N8N_FLARES_WEBHOOK_URL` is set.
+
+## Intermediate
+
+A signal comes in. The workflow scores the account and drafts a note, or it declines.
+The first working copy is the Vercel page https://n8n-demo-three.vercel.app/.
+This repository holds the same rule so the interview set is in one place.
+The workflow does not send email.
+
+## Advanced
+
+An ask comes in. The workflow says build, simplify, push back, or incomplete.
+It does not start a build.
+The push-back fixture is the one to read out loud.
+
+## Import
 
 ```bash
-node scripts/flares.mjs fixtures/flares-7d.json
 node scripts/emit-flares.mjs
+node scripts/emit-score.mjs
+node scripts/emit-workflow.mjs
 ```
 
-## Run n8n locally
+Do not edit the files in `workflows/` by hand.
+Open http://localhost:5678 after `docker compose up -d`, or open the cloud instance when it finishes launching.
+Import the three JSON files. Read each webhook path before you activate it.
 
-This machine's user cannot talk to the Docker socket yet.
-
-```bash
-cp .env.example .env
-# replace every change-me value
-docker compose up -d
-```
-
-Open http://localhost:5678. Import `workflows/solar-flares.json`. The webhook path is `solar-flares`.
-
-No credentials are in this repo. Do not add any.
+This machine cannot talk to the Docker socket yet.
+No credentials are in this repository. Do not add any.
 
 ## Known limits
 
-The hosted page and `solar-flares.json` use a Code node for the If, so one webhook response can carry both branches. An empty true branch would hang a Merge node. The official If node is in `tutorial-first-workflow.json` for the editor. The NASA node in that file still calls the retired URL.
-
+The beginner import file uses a Code node so one response can hold both branches.
+The official If node is in `workflows/tutorial-first-workflow.json`.
+The NASA node in that file still calls the retired URL.
+The incomplete decision sets `http_status` to 400, but the HTTP response is still 200.
+Fix that in the editor, then export. Do not hand-edit the JSON.

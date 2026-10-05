@@ -1,12 +1,22 @@
 # Learning path
 
-Order matters. Do not skip to a custom node.
+Do the three projects in order.
+Do not start with a custom node.
 
-1. Run `node scripts/triage.mjs fixtures/*.json`. Read the four whys out loud. If you cannot say why push-back is not build, stop here.
-2. Change one phrase in `scripts/triage.mjs`. Re-run the fixtures. Run `node scripts/emit-workflow.mjs`. Confirm the JSON changed and the fixtures still match.
-3. Start the local instance. Import the workflow. Do not activate it until you have looked at the webhook path.
-4. POST `fixtures/build.json`'s `request` object. Then push-back. Then incomplete. The incomplete case still returns HTTP 200. That is the bug to fix in the editor: a second Respond to Webhook node with response code 400. Export and replace `workflows/intake-triage.json`.
-5. Only after that, split Decide into a Switch on the canvas so the three outcomes are visible without opening the Code node. Export again.
-6. Custom node is not this project. The simplify fixture exists to show the case where a custom node is the wrong answer.
+1. Read `docs/projects/01-beginner.md`.
+2. Run `node scripts/flares.mjs fixtures/flares-7d.json`.
+3. Say why an empty X-class list can be a correct result.
+4. Read `docs/projects/02-intermediate.md`.
+5. Run `node scripts/score.mjs fixtures/signal-*.json`.
+6. Say why the bakery fixture must not get a meeting.
+7. Read `docs/projects/03-advanced.md`.
+8. Run the triage command in that file.
+9. Say why the push-back fixture is not a build.
+10. Read `docs/n8n-instance.md`.
+11. Import the three workflow files only after the instance leaves the launch page.
+12. Compare one fixture from each project with the local script.
+13. Activate a workflow only after that comparison matches.
 
-Docs used for the compose file: n8n stable 2.41.7 (2026-10-05), and `n8n-io/n8n-hosting` `docker-compose/withPostgres`. The full sandbox stack (n8n Assistant, privileged runner) is out of scope.
+The writing rules for the docs are in `docs/STE.md`.
+Docs used for the compose file: n8n stable 2.41.7, checked on 2026-10-05, and the official `n8n-hosting` withPostgres example.
+The full sandbox stack is out of scope.

@@ -1,0 +1,9 @@
+{
+  "expect": "nurture",
+  "expect_action": "hold",
+  "request": {
+    "company": "Lumen Analytics",
+    "contact": "Jordan Hale",
+    "signal": "Opened a platform role. Mentioned AWS in the job post, no timeline."
+  }
+}

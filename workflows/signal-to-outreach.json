@@ -1,0 +1,82 @@
+{
+  "name": "Signal to outreach",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "signal-to-outreach",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c33c0001-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ],
+      "webhookId": "c33c0001-0000-4000-8000-000000000011"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rules = [\n  [['gpu', 'h100', 'a100', 'a10', 'inference'], 18, 'Mentions GPU or inference capacity'],\n  [['kubernetes', 'k8s', 'platform'], 12, 'Platform or Kubernetes footprint'],\n  [['hiring', 'opened', 'role', 'headcount'], 10, 'Hiring signal'],\n  [['oci', 'aws', 'azure', 'gcp', 'neocloud'], 12, 'Cloud buyer language'],\n  [['evaluat', 'rfp', 'shortlist', 'comparing', 'versus'], 14, 'Active evaluation'],\n  [['this quarter', 'this month', 'urgent'], 8, 'Near-term timeline'],\n  [['cashier', 'bakery', 'restaurant', 'retail', 'salon'], -35, 'Looks like a local consumer business'],\n];\n\nfunction scoreAccount(raw) {\n  const body = raw && typeof raw === 'object' ? raw : {};\n  const company = String(body.company ?? '').trim();\n  const signal = String(body.signal ?? '').trim();\n  const contact = String(body.contact ?? '').trim();\n  const blob = (company + '\\n' + signal).toLowerCase();\n  let score = 22;\n  const reasons = ['+22 Baseline: unknown account, not yet disqualified'];\n  for (const [words, points, reason] of rules) {\n    if (!words.some((word) => blob.includes(word))) continue;\n    score += points;\n    reasons.push((points > 0 ? '+' : '') + points + ' ' + reason);\n  }\n  score = Math.max(0, Math.min(100, score));\n  const band = score >= 70 ? 'pursue' : score >= 45 ? 'nurture' : 'pass';\n  const action = band === 'pursue' ? 'send' : band === 'nurture' ? 'hold' : 'do-not-send';\n  const who = (contact.split(',')[0] || '').trim() || 'there';\n  let short = signal.replace(/\\s+/g, ' ').replace(/\\.$/, '');\n  if (short.length > 140) short = short.slice(0, 137) + '...';\n  let draft;\n  if (band === 'pursue') {\n    draft = 'Hi ' + who + '. Noticed ' + company + ': ' + short + '. If GPU capacity is actually on the table, I can send a one-page fit note. Worth 15 minutes?';\n  } else if (band === 'nurture') {\n    draft = 'Hi ' + who + '. Noted ' + company + ': ' + short + '. Not asking for a meeting yet. I can send a one-pager if it is useful.';\n  } else {\n    draft = 'Do not send. ' + company + ' scored ' + score + '/100 and sits outside this ICP. Park it.';\n  }\n  return {\n    company,\n    contact,\n    signal,\n    score,\n    band,\n    reasons,\n    action,\n    draft,\n    steps: [\n      { name: 'Receive signal', detail: company },\n      { name: 'Score ICP fit', detail: score + '/100 · ' + band },\n      { name: 'Draft or decline', detail: action },\n      { name: 'Return JSON', detail: 'Response ready' },\n    ],\n  };\n}\n\nconst item = $input.first().json;\nconst body = item.body && typeof item.body === 'object' ? item.body : item;\nreturn [{ json: scoreAccount(body) }];\n"
+      },
+      "id": "c33c0001-0000-4000-8000-000000000002",
+      "name": "Score and draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "c33c0001-0000-4000-8000-000000000003",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Score and draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score and draft": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

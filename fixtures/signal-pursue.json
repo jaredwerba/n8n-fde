@@ -1,0 +1,9 @@
+{
+  "expect": "pursue",
+  "expect_action": "send",
+  "request": {
+    "company": "Northwind Inference",
+    "contact": "Avery Chen, Head of Platform",
+    "signal": "Evaluating H100 capacity this quarter. Comparing OCI and a neocloud for inference. Opened a platform role."
+  }
+}
