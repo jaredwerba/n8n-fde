@@ -3,7 +3,7 @@
 Check date: 2026-10-05
 Instance name: jaredwerba
 Instance URL: https://jaredwerba.app.n8n.cloud
-Result: five workflows are hosted and each one ran.
+Result: six workflows are hosted. Five returned data. Address solar is active and waits for a key.
 
 ## What is hosted
 
@@ -26,6 +26,7 @@ Each one is active. A POST to each webhook returned HTTP 200.
 | HN front page | lYpeTaWAFDYUTFJi | `hn-front-page` | five titles |
 | Dollar to euro | NHACtZUIRDl9oC90 | `usd-eur` | 0.89254 |
 | n8n blog titles | PKb7BuLsrVQnkuMC | `n8n-blog-titles` | five titles |
+| Address solar | cgpi9Yf605PkqnBL | `solar-address` | hosted. A live solar result needs `GOOGLE_SOLAR_API_KEY` in n8n. |
 
 Signal to outreach and Intake triage are not on the instance yet.
 

@@ -1,0 +1,23 @@
+{
+  "address": "1 Example St",
+  "formatted_address": "1 Example St, Mountain View, CA 94043, USA",
+  "geocode": { "lat": 37.445, "lng": -122.139 },
+  "insights": {
+    "center": { "latitude": 37.445, "longitude": -122.139 },
+    "imageryDate": { "year": 2024, "month": 8, "day": 12 },
+    "imageryQuality": "HIGH",
+    "postalCode": "94043",
+    "administrativeArea": "CA",
+    "regionCode": "US",
+    "solarPotential": {
+      "maxArrayPanelsCount": 42,
+      "maxSunshineHoursPerYear": 1760.5,
+      "panelCapacityWatts": 400,
+      "wholeRoofStats": { "areaMeters2": 210.4 },
+      "solarPanelConfigs": [
+        { "panelsCount": 10, "yearlyEnergyDcKwh": 4100 },
+        { "panelsCount": 28, "yearlyEnergyDcKwh": 9800 }
+      ]
+    }
+  }
+}

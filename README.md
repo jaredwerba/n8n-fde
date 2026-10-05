@@ -12,6 +12,7 @@ The writing in `docs/` follows ASD-STE100. The rule list is `docs/STE.md`.
 | Public demo | HN front page | `node scripts/public-demos.mjs fixtures/hn-front.json` |
 | Public demo | Dollar to euro | `node scripts/public-demos.mjs fixtures/usd-eur.json` |
 | Public demo | n8n blog titles | `node scripts/public-demos.mjs fixtures/n8n-blog.xml` |
+| Google Solar | Address solar | `node scripts/solar.mjs fixtures/solar-building.json` |
 
 Read `docs/projects/README.md` before you import a file.
 Read `docs/n8n-instance.md` for the cloud check.
