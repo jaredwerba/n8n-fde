@@ -1,0 +1,11 @@
+{
+  "expect": "build",
+  "request": {
+    "request_id": "eng-021",
+    "system": "Salesforce",
+    "ask": "When an opportunity stage changes, post account name and new stage to one Slack channel",
+    "owner": "RevOps",
+    "constraint": "Use existing n8n nodes only. Customer edits the workflow after we leave.",
+    "success": "Stage changes appear in Slack within 5 minutes"
+  }
+}

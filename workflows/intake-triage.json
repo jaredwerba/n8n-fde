@@ -1,0 +1,82 @@
+{
+  "name": "Intake triage",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "intake-triage",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a11a0001-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ],
+      "webhookId": "a11a0001-0000-4000-8000-000000000011"
+    },
+    {
+      "parameters": {
+        "jsCode": "function decide(raw) {\n  const body = raw && typeof raw === \"object\" ? raw : {};\n  const missing = REQUIRED.filter((key) => !String(body[key] ?? \"\").trim());\n  if (missing.length) {\n    return {\n      decision: \"incomplete\",\n      http_status: 400,\n      why: `Missing ${missing.join(\", \")}. Do not start a build on a partial ask.`,\n      first_slice: null,\n      customer_owns: [\"the request\", \"the reason it stopped\"],\n    };\n  }\n\n  const ask = String(body.ask).toLowerCase();\n  const system = String(body.system).toLowerCase();\n  const constraint = String(body.constraint).toLowerCase();\n  const success = String(body.success).toLowerCase();\n  const unbounded = UNBOUNDED.some((phrase) => ask.includes(phrase) || success.includes(phrase));\n  const systemOfRecord = SYSTEMS_OF_RECORD.some((name) => system.includes(name));\n\n  if (unbounded && systemOfRecord) {\n    return {\n      decision: \"push-back\",\n      http_status: 200,\n      why: \"Unbounded sync against a system of record. That is a product, not a 5-day engagement.\",\n      first_slice: \"One object, two fields, a 5-minute schedule, one destination. Write the rest as out of scope.\",\n      customer_owns: [\"the narrower workflow\", \"the out-of-scope list\"],\n    };\n  }\n\n  const wantsCustom = [\"custom node\", \"custom code\", \"community node\"].some((phrase) => ask.includes(phrase));\n  const forbidsCustom = [\"no custom code\", \"no custom node\", \"existing n8n nodes only\", \"existing nodes only\"].some(\n    (phrase) => constraint.includes(phrase),\n  );\n\n  if (wantsCustom && forbidsCustom) {\n    return {\n      decision: \"simplify\",\n      http_status: 200,\n      why: \"The ask wants a custom node and the constraint forbids custom code. Use the HTTP Request node.\",\n      first_slice: \"One documented endpoint, on a schedule, writing the one status field the owner named.\",\n      customer_owns: [\"the HTTP Request workflow\", \"the credential in their n8n\"],\n    };\n  }\n\n  const measurable = /\\d+\\s*(minute|minutes|hour|hours|day|days)/i.test(String(body.success));\n  const namedTrigger = ask.startsWith(\"when \") || ask.includes(\" when \");\n\n  if (measurable && namedTrigger) {\n    return {\n      decision: \"build\",\n      http_status: 200,\n      why: \"Named trigger, named owner, a constraint they can operate, and a success line with a number.\",\n      first_slice: String(body.ask).trim(),\n      customer_owns: [\"the workflow\", \"the credential\", \"the success check\"],\n    };\n  }\n\n  return {\n    decision: \"simplify\",\n    http_status: 200,\n    why: \"The ask is valid and not yet a slice. Narrow it before opening the editor.\",\n    first_slice: \"Rewrite as one trigger, one destination, and a success line with a number.\",\n    customer_owns: [\"the rewritten ask\"],\n  };\n}\n\n\nconst item = $input.first().json;\nconst body = item.body && typeof item.body === \"object\" ? item.body : item;\nreturn [{ json: decide(body) }];\n"
+      },
+      "id": "a11a0001-0000-4000-8000-000000000002",
+      "name": "Decide",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "a11a0001-0000-4000-8000-000000000003",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

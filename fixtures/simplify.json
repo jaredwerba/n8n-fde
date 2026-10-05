@@ -1,0 +1,11 @@
+{
+  "expect": "simplify",
+  "request": {
+    "request_id": "eng-030",
+    "system": "Internal billing API",
+    "ask": "Add a custom node for our private billing API and sync invoices",
+    "owner": "Finance systems",
+    "constraint": "No custom code in the customer tenant",
+    "success": "Invoice status visible to finance each morning"
+  }
+}
