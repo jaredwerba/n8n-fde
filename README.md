@@ -1,29 +1,30 @@
 # n8n FDE
 
-Small n8n project staged for a Forward Deployed Engineer conversation.
+Small n8n project for a Forward Deployed Engineer conversation.
 
-The artifact is an intake workflow: a request comes in, and the workflow says build, simplify, or push back before anyone opens the editor. That is the job. A 5-day engagement that ships an unbounded sync is a failure even if the nodes run.
+The built entry-level project is n8n's own first workflow: fetch the last seven days of solar flares, then split on whether `classType` contains `X`. Docs: https://docs.n8n.io/build-your-first-workflow
 
-This repo does not claim a production deployment. The rules run today without n8n. The editor is the next step.
+`api.nasa.gov/DONKI` redirects as of 2026-09-30. The runnable workflow calls `https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR` instead. Checked live on 2026-10-05: four flares, none of them X-class. An empty true branch is a result.
 
 ## What is here
 
-- `scripts/triage.mjs` is the decision. Four fixtures cover the branches.
-- `workflows/intake-triage.json` is the same function, emitted into an importable workflow. Do not edit that file by hand.
-- `docker-compose.yml` is a local n8n 2.41.7 plus Postgres, adapted from the official `n8n-hosting` withPostgres example. It is not a customer deploy.
+- `workflows/solar-flares.json` is the importable workflow. Webhook path `solar-flares`. Do not edit it by hand. Regenerate with `node scripts/emit-flares.mjs`.
+- `workflows/tutorial-first-workflow.json` is the official docs canvas (Schedule, NASA node, If, PostBin) with the sample credential removed. The NASA node still points at the retired URL.
+- `scripts/flares.mjs` is the split. `fixtures/flares-7d.json` is the live pull from that day.
+- `workflows/intake-triage.json` is a separate staged decision workflow, not this project.
 
-## Run the decision without n8n
+The screen-share page is on the Vercel project, at `/flares`. It runs this same split until `N8N_FLARES_WEBHOOK_URL` is set.
+
+## Run the split without n8n
 
 ```bash
-node scripts/triage.mjs fixtures/*.json
-node scripts/emit-workflow.mjs
+node scripts/flares.mjs fixtures/flares-7d.json
+node scripts/emit-flares.mjs
 ```
-
-Node 20 or newer. No install.
 
 ## Run n8n locally
 
-This machine's user cannot talk to the Docker socket yet. Fix that before the compose command, or run compose with whatever rights you use for Docker.
+This machine's user cannot talk to the Docker socket yet.
 
 ```bash
 cp .env.example .env
@@ -31,10 +32,11 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Open http://localhost:5678. Import `workflows/intake-triage.json`. The webhook path is `intake-triage`, response mode "Using Respond to Webhook node". Activate it, then POST a fixture `request` object at the production URL.
+Open http://localhost:5678. Import `workflows/solar-flares.json`. The webhook path is `solar-flares`.
 
 No credentials are in this repo. Do not add any.
 
 ## Known limits
 
-The Respond node returns the decision JSON. `http_status` is a field, not the HTTP status code. Splitting incomplete onto its own Respond node, with status 400, is the first edit to make inside the editor and re-export. Hand-writing a Switch node into the JSON is how imports break.
+The hosted page and `solar-flares.json` use a Code node for the If, so one webhook response can carry both branches. An empty true branch would hang a Merge node. The official If node is in `tutorial-first-workflow.json` for the editor. The NASA node in that file still calls the retired URL.
+

@@ -1,0 +1,107 @@
+{
+  "name": "Solar flares",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solar-flares",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b22b0001-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "b22b0001-0000-4000-8000-000000000011"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR?startDate=' + $today.minus(7, 'days').toFormat('yyyy-MM-dd') + '&endDate=' + $today.toFormat('yyyy-MM-dd') }}",
+        "options": {}
+      },
+      "id": "b22b0001-0000-4000-8000-000000000002",
+      "name": "DONKI solar flares",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function splitFlares(items) {\n  const x_class = [];\n  const smaller = [];\n  const classes = [];\n  for (const item of items) {\n    const classType = String(item.classType ?? \"\").trim();\n    if (!classType) continue;\n    classes.push(classType);\n    const row = {\n      classType,\n      beginTime: String(item.beginTime ?? \"\"),\n      message: \"There was a solar flare of class \" + classType,\n    };\n    if (classType.includes(\"X\")) x_class.push(row);\n    else smaller.push(row);\n  }\n  return { total: x_class.length + smaller.length, x_class, smaller, classes };\n}\n\nconst raw = $input.all().map((item) => item.json);\nlet flares = raw;\nif (raw.length === 1 && Array.isArray(raw[0])) flares = raw[0];\nconst report = splitFlares(flares);\nreturn [{ json: report }];\n"
+      },
+      "id": "b22b0001-0000-4000-8000-000000000003",
+      "name": "If class contains X",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "b22b0001-0000-4000-8000-000000000004",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "DONKI solar flares",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DONKI solar flares": {
+      "main": [
+        [
+          {
+            "node": "If class contains X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If class contains X": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
