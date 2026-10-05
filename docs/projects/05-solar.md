@@ -10,7 +10,9 @@ This project geocodes the address first, then asks for the closest building.
 
 ## What you send
 
-POST JSON to the webhook path `solar-address`.
+POST JSON to the webhook path `solar-address`, or open the same URL in a browser with `?address=`.
+
+A bare browser open is a GET. The first publish accepted POST only, so that open returned 404.
 
 ```
 { "address": "1600 Amphitheatre Parkway, Mountain View, CA" }

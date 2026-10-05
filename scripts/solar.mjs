@@ -111,10 +111,11 @@ function readKey() {
   return "";
 }
 const item = $input.first().json;
-const incoming = item.body && typeof item.body === "object" ? item.body : item;
-const address = String(incoming.address || "").trim();
+const body = item.body && typeof item.body === "object" ? item.body : {};
+const query = item.query && typeof item.query === "object" ? item.query : {};
+const address = String(body.address || query.address || item.address || "").trim();
 if (!address) {
-  return [{ json: { ok: false, error: "missing_address", message: "Send a JSON body with an address field." } }];
+  return [{ json: { ok: false, error: "missing_address", message: "Add ?address= to this URL, or send the address in a JSON body." } }];
 }
 const key = readKey();
 if (!key) {

@@ -17,8 +17,22 @@ const workflow = {
       name: "Webhook",
       type: "n8n-nodes-base.webhook",
       typeVersion: 2,
-      position: [240, 300],
+      position: [240, 220],
       webhookId: "d55d0001-0000-4000-8000-000000000009",
+    },
+    {
+      parameters: {
+        httpMethod: "GET",
+        path: "solar-address",
+        responseMode: "responseNode",
+        options: {},
+      },
+      id: "d55d0001-0000-4000-8000-000000000002",
+      name: "Webhook GET",
+      type: "n8n-nodes-base.webhook",
+      typeVersion: 2,
+      position: [240, 420],
+      webhookId: "d55d0001-0000-4000-8000-000000000008",
     },
     {
       parameters: { jsCode: solarJs() },
@@ -39,6 +53,7 @@ const workflow = {
   ],
   connections: {
     Webhook: { main: [[{ node: "Geocode and solar", type: "main", index: 0 }]] },
+    "Webhook GET": { main: [[{ node: "Geocode and solar", type: "main", index: 0 }]] },
     "Geocode and solar": { main: [[{ node: "Respond to Webhook", type: "main", index: 0 }]] },
   },
   pinData: {},
