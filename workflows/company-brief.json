@@ -1,0 +1,110 @@
+{
+  "name": "Company brief",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "company-brief",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d66d0001-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        220
+      ],
+      "webhookId": "d66d0001-0000-4000-8000-000000000009"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "company-brief",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d66d0001-0000-4000-8000-000000000002",
+      "name": "Webhook GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        420
+      ],
+      "webhookId": "d66d0001-0000-4000-8000-000000000008"
+    },
+    {
+      "parameters": {
+        "jsCode": "function shapeBrief(raw) {\n  const body = raw && typeof raw === \"object\" ? raw : {};\n  const list = (value) => (Array.isArray(value) ? value : []).slice(0, 8).map((row) => {\n    const item = row && typeof row === \"object\" ? row : {};\n    return { name: String(item.name || \"\").trim(), title: String(item.title || \"\").trim(), source: String(item.source || \"\").trim() };\n  }).filter((row) => row.name || row.title);\n  const emails = (Array.isArray(body.emails) ? body.emails : []).slice(0, 8).map((row) => {\n    const item = row && typeof row === \"object\" ? row : {};\n    return { address: String(item.address || \"\").trim(), source: String(item.source || \"\").trim() };\n  }).filter((row) => row.address && row.source);\n  const jobs = (Array.isArray(body.jobs) ? body.jobs : []).slice(0, 8).map((row) => {\n    const item = row && typeof row === \"object\" ? row : {};\n    return { title: String(item.title || \"\").trim(), url: String(item.url || \"\").trim() };\n  }).filter((row) => row.title);\n  return {\n    ok: body.ok !== false,\n    company: String(body.company || \"\").trim(),\n    summary: String(body.summary || \"\").trim(),\n    careers_url: String(body.careers_url || \"\").trim(),\n    executives: list(body.executives),\n    emails,\n    jobs,\n    sources: (Array.isArray(body.sources) ? body.sources : []).map(String).filter(Boolean).slice(0, 8),\n    note: \"Public pages only. No guessed personal emails.\",\n  };\n}\nfunction readKey() {\n  try { if (typeof $vars !== \"undefined\" && $vars && $vars.OPENROUTER_API_KEY) return String($vars.OPENROUTER_API_KEY); } catch (error) {}\n  try { if (typeof $env !== \"undefined\" && $env && $env.OPENROUTER_API_KEY) return String($env.OPENROUTER_API_KEY); } catch (error) {}\n  return \"\";\n}\nfunction parseModel(text) {\n  let raw = String(text || \"\").trim();\n  if (raw.slice(0, 3) === \"```\") {\n    raw = raw.split(\"\\n\").filter((line) => !line.trim().startsWith(\"```\")).join(\"\\n\");\n  }\n  const start = raw.indexOf(\"{\");\n  const end = raw.lastIndexOf(\"}\");\n  if (start < 0 || end < start) throw new Error(\"no json\");\n  return JSON.parse(raw.slice(start, end + 1));\n}\nconst item = $input.first().json;\nconst body = item.body && typeof item.body === \"object\" ? item.body : {};\nconst query = item.query && typeof item.query === \"object\" ? item.query : {};\nconst company = String(body.company || query.company || item.company || \"\").trim().slice(0, 120);\nif (!company) {\n  return [{ json: { ok: false, error: \"missing_company\", message: \"Add ?company= to this URL, or send company in a JSON body.\" } }];\n}\nconst key = readKey();\nif (!key) {\n  return [{ json: { ok: false, error: \"missing_key\", message: \"Add OPENROUTER_API_KEY as an n8n variable. Do not put the key in the workflow file.\" } }];\n}\nconst prompt = \"Search public web pages for the company named: \" + company + \". Return one JSON object and no markdown. Fields: company, summary, careers_url, executives [{name,title,source}], emails [{address,source}], jobs [{title,url}], sources [url]. Rules: executives must come from a public leadership or about page. emails must be addresses printed on a public page, with that page as source. If no public email is printed, return an empty emails list. Do not invent or pattern-guess personal emails. jobs must come from a public careers page. sources must be the page URLs you used.\";\nlet response;\ntry {\n  response = await this.helpers.httpRequest({\n    method: \"POST\",\n    url: \"https://openrouter.ai/api/v1/chat/completions\",\n    headers: { Authorization: \"Bearer \" + key, \"content-type\": \"application/json\" },\n    body: {\n      model: \"openai/gpt-4o-mini\",\n      max_tokens: 900,\n      plugins: [{ id: \"web\", max_results: 4 }],\n      messages: [{ role: \"user\", content: prompt }],\n    },\n    json: true,\n  });\n} catch (error) {\n  const status = error && (error.statusCode || error.httpCode || \"UNKNOWN\");\n  return [{ json: { ok: false, error: \"openrouter_error\", company, status, message: \"OpenRouter rejected the call. Check the key credit and the model name.\" } }];\n}\nconst message = response && response.choices && response.choices[0] && response.choices[0].message;\nconst text = message && message.content;\nlet parsed;\ntry {\n  parsed = parseModel(text);\n} catch (error) {\n  return [{ json: { ok: false, error: \"bad_model_json\", company, message: \"The model did not return JSON.\" } }];\n}\nconst brief = shapeBrief(parsed);\nbrief.company = brief.company || company;\nbrief.model = \"openai/gpt-4o-mini\";\nreturn [{ json: brief }];\n"
+      },
+      "id": "d66d0001-0000-4000-8000-000000000003",
+      "name": "Search and shape",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      },
+      "id": "d66d0001-0000-4000-8000-000000000004",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search and shape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook GET": {
+      "main": [
+        [
+          {
+            "node": "Search and shape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search and shape": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

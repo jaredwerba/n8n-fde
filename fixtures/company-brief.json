@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "company": "Example Cloud",
+  "summary": "A public cloud company.",
+  "careers_url": "https://example.com/careers",
+  "executives": [
+    { "name": "Ada Example", "title": "Chief Executive Officer", "source": "https://example.com/leadership" }
+  ],
+  "emails": [
+    { "address": "press@example.com", "source": "https://example.com/press" }
+  ],
+  "jobs": [
+    { "title": "Account Executive", "url": "https://example.com/careers/ae" }
+  ],
+  "sources": ["https://example.com/leadership", "https://example.com/careers"]
+}

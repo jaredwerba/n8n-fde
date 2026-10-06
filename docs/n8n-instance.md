@@ -27,6 +27,7 @@ Each one is active. A POST to each webhook returned HTTP 200.
 | Dollar to euro | NHACtZUIRDl9oC90 | `usd-eur` | 0.89254 |
 | n8n blog titles | PKb7BuLsrVQnkuMC | `n8n-blog-titles` | five titles |
 | Address solar | cgpi9Yf605PkqnBL | `solar-address` | hosted. A live solar result needs `GOOGLE_SOLAR_API_KEY` in n8n. |
+| Company brief | JTXCpQ19WzI8Hhqd | `company-brief` | active. A Cloudflare POST returned executives, one printed IR email, and job titles. |
 
 Signal to outreach and Intake triage are not on the instance yet.
 

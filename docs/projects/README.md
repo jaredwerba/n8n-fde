@@ -17,6 +17,7 @@ Read `docs/n8n-instance.md` for what is active on the instance.
 | Public demo | Dollar to euro | `workflows/usd-eur.json` | `node scripts/public-demos.mjs fixtures/usd-eur.json` |
 | Public demo | n8n blog titles | `workflows/n8n-blog-titles.json` | `node scripts/public-demos.mjs fixtures/n8n-blog.xml` |
 | Google Solar | Address solar | `workflows/address-solar.json` | `node scripts/solar.mjs fixtures/solar-building.json` |
+| OpenRouter | Company brief | `workflows/company-brief.json` | `node scripts/company.mjs fixtures/company-brief.json` |
 
 The writing in these files follows ASD-STE100.
 The rule list is in `docs/STE.md`.
@@ -29,5 +30,6 @@ The specification itself is not in this repository.
 3. Advanced. The intake decision that was the first commit in this repository.
 4. Public demos. Common no-key patterns: Open-Meteo, Hacker News, Frankfurter, and an RSS title list. Read `docs/projects/04-public-demos.md`.
 5. Address solar. Google `buildingInsights:findClosest` after a geocode. Read `docs/projects/05-solar.md`. The key is an n8n variable named `GOOGLE_SOLAR_API_KEY`.
+6. Company brief. n8n calls OpenRouter with web search. Read `docs/projects/06-company.md`. The key is an n8n variable named `OPENROUTER_API_KEY`.
 
 Do not add a template that needs a private credential until the owner adds that credential in n8n.
